@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+log.txt*
+nohup.out
+.opencode/
