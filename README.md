@@ -1,8 +1,37 @@
 # RealBot 🤖✨
 
-**RealBot** is a next-generation Discord agent powered by Google's **Gemini 3 Pro** and **Veo** models. Unlike traditional bots that simply respond to commands, RealBot operates as an **autonomous agent**, capable of thinking, planning, and executing complex workflows to fulfill user requests.
+**RealBot** is a next-generation Discord agent powered by Google's **Gemini 3 Pro** and **Veo** models. Unlike traditional bots that simply respond to commands, RealBot operates as an **autonomous agent** capable of thinking, planning, executing workflows, and even **rewriting its own code** to evolve new capabilities on the fly.
 
-It doesn't just "generate images"; it can read the chat, understand the vibe, look up what users look like, and create contextually relevant media.
+---
+
+## 🧬 Self-Evolution & Dynamic Architecture
+
+RealBot features a groundbreaking **self-improvement engine** that allows it to expand its own capabilities without restarting or manual deployment.
+
+### How `/evolve` Works
+The `/evolve` command turns natural language into functional code in seconds. You don't need to know Python; you just need to describe what you want.
+
+1.  **Prompt:** You type `/evolve description:"A command that roasts users based on their avatar"`.
+2.  **Architect:** The `gemini-2.5-pro` model analyzes your request, plans the architecture, and writes a complete, valid Discord Cog (plugin) in Python.
+3.  **Validate:** The bot performs static analysis on the generated code to ensure it's syntactically correct and safe to load.
+4.  **Hot-Plug:** RealBot instantly loads the new file into its running memory. The new command is available immediately.
+
+### Dynamic Plugin Manager
+RealBot includes a full suite of tools to manage its self-generated extensions:
+*   **`/plugin list`**: See all the features the bot has created for itself.
+*   **`/plugin view`**: Read the source code of any generated command.
+*   **`/plugin reload`**: Update a feature if you've evolved a newer version.
+*   **`/plugin delete`**: Remove features you no longer want.
+
+**Example Scenario:**
+> **User:** "I wish this bot had a coin flip command."
+>
+> **Admin:** `/evolve "Create a simple coin flip command that uses a random number generator and replies with Heads or Tails"`
+>
+> **RealBot:** *Thinking... Writing code... Verifying...* ✅ **Feature Loaded!**
+>
+> **User:** `/coinflip`
+> **RealBot:** "🪙 **Heads!**"
 
 ---
 
@@ -50,13 +79,7 @@ RealBot can "see" users. If you ask it to "make a movie poster starring @User1 a
 
 ---
 
-## 🛠️ Advanced Features
-
-### 🧬 Code Evolution (`/evolve`)
-RealBot is self-improving. Using the `/evolve` command, you can describe a new feature in plain English, and the bot will:
-1.  **Write the Code:** Generate a valid Python Discord Cog.
-2.  **Validate:** Check for syntax errors and structural validity.
-3.  **Hot-Load:** Instantly load the new feature into the running bot via its dynamic plugin system (`/plugin`).
+## 🛠️ Other Advanced Features
 
 ### 🖥️ Computer Use (`!cu`)
 *(Owner Only)* RealBot can control a headless browser using the `gemini-2.5-computer-use` model. It can navigate websites, click elements, type text, and scroll, providing a screenshot feed of its actions. This allows for complex automation tasks like "Go to this website and screenshot the pricing table."
