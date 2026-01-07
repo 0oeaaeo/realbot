@@ -800,3 +800,123 @@ async def search_discord(guild_id, channel_id=None, author_id=None, content=None
             print(f"Search error: {e}")
             log_debug("Search Discord Error", e)
             return None, []
+
+async def deep_research_stream(prompt):
+    """
+    Asynchronous generator that yields events from the Gemini Deep Research Agent.
+    Handles initial connection and reconnection logic.
+    """
+    if not client:
+        yield {"type": "error", "content": "GenAI client not initialized."}
+        return
+
+    agent_name = 'deep-research-pro-preview-12-2025'
+    last_event_id = None
+    interaction_id = None
+    is_complete = False
+
+    async def _async_generator_wrapper(sync_iterable):
+        loop = asyncio.get_running_loop()
+        iterator = iter(sync_iterable)
+        while True:
+            try:
+                # Use a small timeout or just run_in_executor to avoid blocking the loop
+                item = await loop.run_in_executor(None, next, iterator)
+                yield item
+            except StopIteration:
+                break
+            except Exception as e:
+                # Re-raise for outer loop to handle reconnection
+                raise e
+
+    while not is_complete:
+        try:
+            loop = asyncio.get_running_loop()
+            if not interaction_id:
+                # Start initial stream
+                log_debug("Starting Deep Research", prompt)
+                initial_stream = await loop.run_in_executor(
+                    None, 
+                    lambda: client.interactions.create(
+                        input=prompt,
+                        agent=agent_name,
+                        background=True,
+                        stream=True,
+                        store=True, # Required for background=True
+                        agent_config={
+                            "type": "deep-research",
+                            "thinking_summaries": "auto"
+                        }
+                    )
+                )
+                stream_to_process = initial_stream
+            else:
+                # Attempt reconnection
+                log_debug("Reconnecting Deep Research", {"id": interaction_id, "last_event_id": last_event_id})
+                await asyncio.sleep(2)
+                resume_stream = await loop.run_in_executor(
+                    None,
+                    lambda: client.interactions.get(
+                        id=interaction_id,
+                        stream=True,
+                        last_event_id=last_event_id
+                    )
+                )
+                stream_to_process = resume_stream
+
+            async for chunk in _async_generator_wrapper(stream_to_process):
+                # Process events
+                if chunk.event_type == "interaction.start":
+                    interaction_id = chunk.interaction.id
+                    yield {"type": "interaction_start", "id": interaction_id}
+
+                if chunk.event_id:
+                    last_event_id = chunk.event_id
+
+                if chunk.event_type == "content.delta":
+                    if chunk.delta.type == "text":
+                        yield {"type": "text_delta", "content": chunk.delta.text}
+                    elif chunk.delta.type == "thought_summary":
+                        # Check if it has content.text or just text (spec says content.text)
+                        text = None
+                        if hasattr(chunk.delta, 'content') and hasattr(chunk.delta.content, 'text'):
+                            text = chunk.delta.content.text
+                        elif hasattr(chunk.delta, 'text'):
+                            text = chunk.delta.text
+                        
+                        if text:
+                            yield {"type": "thought_delta", "content": text}
+
+                elif chunk.event_type in ["interaction.complete", "completed"]:
+                    # Final check for outputs in the interaction object
+                    if chunk.interaction and chunk.interaction.outputs:
+                        final_text = chunk.interaction.outputs[-1].text
+                        yield {"type": "final_output", "content": final_text}
+                    
+                    is_complete = True
+                    yield {"type": "complete"}
+                
+                elif chunk.event_type in ["error", "failed"]:
+                    error_msg = getattr(chunk, 'error', "Unknown Agent Error")
+                    log_debug("Deep Research Agent Error Event", error_msg)
+                    yield {"type": "error", "content": str(error_msg)}
+                    is_complete = True # Terminal if it's an error event
+                    break
+
+        except Exception as e:
+            log_debug("Deep Research Connection Exception", str(e))
+            if is_complete:
+                break
+            
+            # If we don't even have an interaction_id yet, we can't reconnect
+            if not interaction_id:
+                yield {"type": "error", "content": f"Failed to start research: {e}"}
+                break
+            
+            # If it's a specific "404" or similar on reconnection, it might be dead
+            if "404" in str(e):
+                yield {"type": "error", "content": f"Interaction lost: {e}"}
+                break
+
+            # Otherwise, the loop will try to reconnect
+            log_debug("Retrying Deep Research connection...")

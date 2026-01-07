@@ -92,7 +92,7 @@ class Chaos(commands.Cog):
             print(f"Error getting/creating webhook: {e}")
             return None
     
-    @app_commands.command(name="chaos", description="Enable chaos mode for a user - replaces their messages with opposites (Admin only)")
+    @app_commands.command(name="chaos", description="Enable chaos mode for a user - replaces their messages with opposites (Owner only)")
     @app_commands.describe(
         user="The user to target",
         mode="Enable or disable chaos mode for this user"
@@ -104,9 +104,9 @@ class Chaos(commands.Cog):
         mode: Literal['on', 'off'] = 'on'
     ):
         """Toggle chaos mode for a user."""
-        if not self.is_admin(interaction.user):
+        if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(
-                "❌ You are not authorized to use this command.", 
+                "❌ This command is owner-only.", 
                 ephemeral=True
             )
             return
@@ -130,7 +130,7 @@ class Chaos(commands.Cog):
                 ephemeral=True
             )
     
-    @app_commands.command(name="allchaos", description="Enable chaos mode for ALL messages in this channel (Admin only)")
+    @app_commands.command(name="allchaos", description="Enable chaos mode for ALL messages in this channel (Owner only)")
     @app_commands.describe(
         mode="Enable or disable channel-wide chaos mode (omit to toggle)"
     )
@@ -140,9 +140,9 @@ class Chaos(commands.Cog):
         mode: Literal['on', 'off'] = None
     ):
         """Toggle chaos mode for entire channel."""
-        if not self.is_admin(interaction.user):
+        if not await self.bot.is_owner(interaction.user):
             await interaction.response.send_message(
-                "❌ You are not authorized to use this command.", 
+                "❌ This command is owner-only.", 
                 ephemeral=True
             )
             return
