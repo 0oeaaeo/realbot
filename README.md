@@ -2,7 +2,10 @@
 
 **RealBot** is a next-generation, multi-purpose Discord bot powered by Google's Gemini family of models. It goes beyond simple commands, operating as an autonomous agent capable of reasoning, using tools, and even rewriting its own code to evolve new capabilities on the fly.
 
+> 🚀 **New: Easy Docker Setup!** Get started in seconds with `docker-compose up -d`. See the [Docker Installation section](#installation-docker---recommended) below.
+
 ---
+
 
 ## Core Features
 
