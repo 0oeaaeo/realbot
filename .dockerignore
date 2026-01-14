@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.git/
+verification_logs.txt
+log.txt*
+nohup.out
+lol.txt
+cookies.txt
+*.log

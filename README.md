@@ -51,7 +51,7 @@
 *   [Google Gemini API Key](https://aistudio.google.com/)
 *   Discord Bot Token
 
-### Installation
+### Installation (Standard)
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/your-username/realbot.git
@@ -76,6 +76,20 @@
     ```bash
     python bot.py
     ```
+
+### Installation (Docker - Recommended)
+For an easy, containerized setup with all dependencies (including Playwright) pre-configured:
+
+1.  **Configure `.env`** as described above.
+2.  **Run the setup script**:
+    ```bash
+    ./setup_docker.sh
+    ```
+3.  **Start with Docker Compose**:
+    ```bash
+    docker-compose up -d
+    ```
+See [README_DOCKER.md](README_DOCKER.md) for more details.
 
 ---
 

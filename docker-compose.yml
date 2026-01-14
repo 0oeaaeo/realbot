@@ -1,0 +1,26 @@
+services:
+  realbot:
+    build: .
+    container_name: realbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Persist configuration JSON files
+      - ./ask_users.json:/app/ask_users.json
+      - ./bot_admins.json:/app/bot_admins.json
+      - ./forced_nicks.json:/app/forced_nicks.json
+      - ./nano_users.json:/app/nano_users.json
+      - ./noswifto.json:/app/noswifto.json
+      - ./personas.json:/app/personas.json
+      # Persist data directories
+      - ./data:/app/data
+      - ./generated_cogs:/app/generated_cogs
+      # If you want to be able to modify the bot's code from outside and have it reflect
+      # (though the bot might need a restart), you can mount the whole app,
+      # but for a production-like setup, we just mount the stateful parts.
+      # - .:/app 
+
+networks:
+  default:
+    name: realbot-network
